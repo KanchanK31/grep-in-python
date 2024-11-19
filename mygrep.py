@@ -32,20 +32,3 @@ def parse_args():
 if __name__=='__main__':
 	pattern,file_name = parse_args()
 	grep(pattern,file_name)
-
-
-
-
-
-
-
-
-
-# arguments = 
-# f=open(file_name,'r')
-# if('-n' in flags):
-#     lines = f.readlines()
-#     for i,line in enumerate(lines):
-#         # print(line)
-#         if(key in line):
-#             print(f"{i+1}:{line}")
