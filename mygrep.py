@@ -1,5 +1,7 @@
 import sys
 import os
+import asyncio
+
 
 def print_match(flags,line,i,file_name):
 	result=""
@@ -54,18 +56,25 @@ def parse_args():
 		exit(0) 
 	return (pattern,file_name,flags)
 
-def process_file_path(pattern,file_name,flags):
+async def process_files_list(f,pattern,file_name,flags):
+	f = os.path.join(file_name,f)
+	if os.path.isfile(f):
+		grep(pattern,f,flags,from_dir=True)
+	else:
+		await process_file_path(pattern,f,flags)
+
+async def process_file_path(pattern,file_name,flags):
 	if os.path.isfile(file_name):
 		grep(pattern,file_name,flags,from_dir=False)
 	else:
 		files = os.listdir(file_name)
+		tasks = []
 		for f in files:
-			f=os.path.join(file_name,f)
-			if os.path.isfile(f):
-				grep(pattern,f,flags,from_dir=True)
-			else:
-				process_file_path(pattern,f,flags)
+			t = asyncio.create_task(process_files_list(f,pattern,file_name,flags))
+			tasks.append(t)
+		results = await asyncio.gather(*tasks)
 
 if __name__ == '__main__':
 	pattern,file_name,flags = parse_args()
-	process_file_path(pattern,file_name,flags)
+	asyncio.run(process_file_path(pattern,file_name,flags))
+
